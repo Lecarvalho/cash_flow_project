@@ -9,7 +9,7 @@ class CashFlowModel {
   DateTime creationDate;
 
   String get formattedPrice => price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2);
-  String get formattedCreationDate => DateFormat("d MMM yy").add_jm().format(creationDate);
+  String get formattedCreationDate => DateFormat("d MMM yy").format(creationDate);
 
   CashFlowModel({@required this.price, @required this.description, @required this.creationDate});
 

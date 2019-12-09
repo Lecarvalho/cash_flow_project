@@ -18,7 +18,20 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
   final TextEditingController _textEditingPriceController =
       TextEditingController();
 
-  bool showInvalidFieldsWarning = false;
+  final TextEditingController _textEditingCalendarController =
+      TextEditingController();
+
+  bool _showInvalidFieldsWarning;
+
+  DateTime _newFlowDate;
+
+  @override
+  void initState() {
+    _newFlowDate = DateTime.now();
+    _showInvalidFieldsWarning = false;
+    _textEditingCalendarController.text = widget._cashFlowController.formatDate(_newFlowDate);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +55,24 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(helperText: "Preço", hintText: "CAD"),
           ),
-          showInvalidFieldsWarning
+          TextField(
+            readOnly: true,
+            controller: _textEditingCalendarController,
+            keyboardType: TextInputType.datetime,
+            textInputAction: TextInputAction.done,
+            onTap: () => showDatePicker(
+              context: context,
+              firstDate: DateTime(2019),
+              initialDate: _newFlowDate,
+              lastDate: DateTime(2030)
+            ).then((res) async {
+              if (res != null){
+                _textEditingCalendarController.text = widget._cashFlowController.formatDate(res);
+                _newFlowDate = res;
+              }
+            }),
+          ),
+          _showInvalidFieldsWarning
               ? Column(
                   children: <Widget>[
                     SizedBox(height: 10),
@@ -64,7 +94,7 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
             )) {
               await widget._cashFlowController.save(
                 CashFlowModel(
-                  creationDate: DateTime.now(),
+                  creationDate: _newFlowDate,
                   description: _textEditingDescriptionController.text,
                   price: double.parse(
                       _textEditingPriceController.text.replaceAll(",", ".")),
@@ -74,7 +104,7 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
               Navigator.pop(context, true);
             } else {
               setState(() {
-                showInvalidFieldsWarning = true;
+                _showInvalidFieldsWarning = true;
               });
             }
           },
