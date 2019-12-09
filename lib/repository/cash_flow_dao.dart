@@ -27,4 +27,15 @@ class CashFlowDAO {
   Future<void> delete(int id) async {
     await database.delete("cash_flow", where: "id = $id");
   }
+
+  Future<void> update(CashFlowModel cashFlow) async {
+    await database.update(
+        "cash_flow",
+        {
+          "price": cashFlow.price,
+          "description": cashFlow.description,
+          "creation_date": cashFlow.creationDate.toString()
+        },
+        where: "id = ${cashFlow.id}");
+  }
 }

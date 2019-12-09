@@ -15,11 +15,16 @@ class CashFlowController {
   Future<void> getCashFlowList() async {
     cashFlowList = await _dao.getList();
     cashFlowList.sort((cashFlow, cashFlow1) =>
-          cashFlow1.creationDate.compareTo((cashFlow.creationDate)));
+        cashFlow1.creationDate.compareTo((cashFlow.creationDate)));
   }
 
   Future<void> save(CashFlowModel cashFlow) async {
-    await _dao.insert(cashFlow);
+    if (cashFlow.id == null) {
+      await _dao.insert(cashFlow);
+    }
+    else {
+      await _dao.update(cashFlow);
+    }
   }
 
   Future<void> delete(int id) async {

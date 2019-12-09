@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 
 class NewEntryFlowWidget extends StatefulWidget {
   final CashFlowController _cashFlowController;
+  final CashFlowModel editingCashFlow;
 
-  NewEntryFlowWidget(this._cashFlowController);
+  NewEntryFlowWidget(this._cashFlowController, {this.editingCashFlow});
 
   @override
   _NewEntryFlowWidgetState createState() => _NewEntryFlowWidgetState();
@@ -27,10 +28,21 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
 
   @override
   void initState() {
-    _newFlowDate = DateTime.now();
     _showInvalidFieldsWarning = false;
-    _textEditingCalendarController.text =
-        widget._cashFlowController.formatDate(_newFlowDate);
+
+    if (widget.editingCashFlow == null) {
+      _newFlowDate = DateTime.now();
+      _textEditingCalendarController.text =
+          widget._cashFlowController.formatDate(_newFlowDate);
+    } else {
+      _newFlowDate = widget.editingCashFlow.creationDate;
+      _textEditingCalendarController.text =
+          widget.editingCashFlow.formattedCreationDate;
+      _textEditingDescriptionController.text =
+          widget.editingCashFlow.description;
+      _textEditingPriceController.text = widget.editingCashFlow.formattedPrice;
+    }
+
     super.initState();
   }
 
@@ -109,14 +121,21 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
               _textEditingDescriptionController.text,
               _textEditingPriceController.text,
             )) {
-              await widget._cashFlowController.save(
-                CashFlowModel(
-                  creationDate: _newFlowDate,
-                  description: _textEditingDescriptionController.text,
-                  price: double.parse(
-                      _textEditingPriceController.text.replaceAll(",", ".")),
-                ),
+              var newObject = CashFlowModel(
+                creationDate: _newFlowDate,
+                description: _textEditingDescriptionController.text,
+                price: double.parse(
+                    _textEditingPriceController.text.replaceAll(",", ".")),
               );
+
+              if (widget.editingCashFlow == null) {
+                await widget._cashFlowController.save(newObject);
+              } else {
+                widget.editingCashFlow.creationDate = newObject.creationDate;
+                widget.editingCashFlow.description = newObject.description;
+                widget.editingCashFlow.price = newObject.price;
+                await widget._cashFlowController.save(widget.editingCashFlow);
+              }
 
               Navigator.pop(context, true);
             } else {

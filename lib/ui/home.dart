@@ -1,4 +1,5 @@
 import 'package:cash_flow_project/controller/cash_flow_controller.dart';
+import 'package:cash_flow_project/model/cash_flow_model.dart';
 import 'package:cash_flow_project/ui/line_flow_widget.dart';
 import 'package:cash_flow_project/ui/new_entry_flow_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,7 +40,8 @@ class _Home extends State<Home> {
                     children: <Widget>[
                       Text(
                         "PROJETO: MEU ALUGUEL / PLEYCE - Valores em CAD",
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -58,10 +60,15 @@ class _Home extends State<Home> {
                         return Dismissible(
                             key: Key(item.id.toString()),
                             background: Container(color: Colors.red),
-                            child: Column(children: [
-                              LineFlowWidget(item),
-                              Divider(height: 1.5)
-                            ]),
+                            child: InkWell(
+                              onTap: () => _editFlow(item),
+                              child: Column(
+                                children: [
+                                  LineFlowWidget(item),
+                                  Divider(height: 1.5)
+                                ],
+                              ),
+                            ),
                             onDismissed: (direction) async {
                               await _cashFlowController.delete(item.id);
                               await _cashFlowController.getCashFlowList();
@@ -93,6 +100,26 @@ class _Home extends State<Home> {
     );
 
     if (newEntry != null) {
+      await _cashFlowController.getCashFlowList();
+      setState(() {});
+    }
+  }
+
+  void _editFlow(CashFlowModel editingCashFlow) async {
+    var editEntry = await showDialog(
+      context: context,
+      builder: (context) => NewEntryFlowWidget(
+        _cashFlowController,
+        editingCashFlow: editingCashFlow,
+      ),
+    );
+
+    if (editEntry != null) {
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Entrada alterada com sucesso!"),
+        ),
+      );
       await _cashFlowController.getCashFlowList();
       setState(() {});
     }
