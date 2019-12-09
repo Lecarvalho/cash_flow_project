@@ -29,7 +29,8 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
   void initState() {
     _newFlowDate = DateTime.now();
     _showInvalidFieldsWarning = false;
-    _textEditingCalendarController.text = widget._cashFlowController.formatDate(_newFlowDate);
+    _textEditingCalendarController.text =
+        widget._cashFlowController.formatDate(_newFlowDate);
     super.initState();
   }
 
@@ -50,27 +51,39 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
             decoration: InputDecoration(helperText: "Descrição"),
           ),
           SizedBox(height: 10),
-          TextField(
-            controller: _textEditingPriceController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(helperText: "Preço", hintText: "CAD"),
-          ),
-          TextField(
-            readOnly: true,
-            controller: _textEditingCalendarController,
-            keyboardType: TextInputType.datetime,
-            textInputAction: TextInputAction.done,
-            onTap: () => showDatePicker(
-              context: context,
-              firstDate: DateTime(2019),
-              initialDate: _newFlowDate,
-              lastDate: DateTime(2030)
-            ).then((res) async {
-              if (res != null){
-                _textEditingCalendarController.text = widget._cashFlowController.formatDate(res);
-                _newFlowDate = res;
-              }
-            }),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              SizedBox(
+                width: 70,
+                child: TextField(
+                  controller: _textEditingPriceController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(helperText: "CAD"),
+                ),
+              ),
+              SizedBox(
+                width: 100,
+                child: TextField(
+                  readOnly: true,
+                  controller: _textEditingCalendarController,
+                  keyboardType: TextInputType.datetime,
+                  decoration: InputDecoration(helperText: "Data da operação"),
+                  onTap: () => showDatePicker(
+                          context: context,
+                          firstDate: DateTime(2019),
+                          initialDate: _newFlowDate,
+                          lastDate: DateTime(2030))
+                      .then((res) async {
+                    if (res != null) {
+                      _textEditingCalendarController.text =
+                          widget._cashFlowController.formatDate(res);
+                      _newFlowDate = res;
+                    }
+                  }),
+                ),
+              )
+            ],
           ),
           _showInvalidFieldsWarning
               ? Column(
@@ -86,6 +99,10 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
         ],
       ),
       actions: <Widget>[
+        FlatButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text("FECHAR"),
+        ),
         FlatButton(
           onPressed: () async {
             if (widget._cashFlowController.isValid(
@@ -109,10 +126,6 @@ class _NewEntryFlowWidgetState extends State<NewEntryFlowWidget> {
             }
           },
           child: Text("OK"),
-        ),
-        FlatButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text("FECHAR"),
         )
       ],
     );
